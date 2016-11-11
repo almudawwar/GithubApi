@@ -5,6 +5,12 @@ public class User {
     private String login;
     private String url;
 
+    public User(String login, String url){
+
+        this.login = login;
+        this.url = url;
+    }
+
     public String getLogin() {
         return login;
     }

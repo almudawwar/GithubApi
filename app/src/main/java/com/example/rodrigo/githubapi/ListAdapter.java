@@ -48,7 +48,7 @@ public class ListAdapter extends BaseAdapter {
         }
 
         if(view == null){
-            view = inflater.inflate(R.layout.list_item_layout, viewGroup);
+            view = inflater.inflate(R.layout.list_item_layout, null);
         }
 
         TextView title = (TextView) view.findViewById(R.id.title);

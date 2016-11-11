@@ -17,8 +17,12 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -26,6 +30,8 @@ public class MainActivity extends AppCompatActivity {
 
     EditText search_text;
     ListView result_list;
+    ListAdapter adapter;
+    List<User> list = new ArrayList<>();
 
     RequestQueue requestQueue;
 
@@ -36,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
 
         search_text = (EditText) findViewById(R.id.search_text);
         result_list = (ListView) findViewById(R.id.result_list);
+
+        adapter = new ListAdapter(this, list);
+        result_list.setAdapter(adapter);
 
         requestQueue = Volley.newRequestQueue(this);
 
@@ -74,6 +83,23 @@ public class MainActivity extends AppCompatActivity {
                                     public void onResponse(JSONObject response) {
 
                                         System.out.println(response.toString());
+
+                                        try {
+                                            JSONArray users_array = response.getJSONArray("items");
+
+                                            for(int i = 0; i < users_array.length(); i++){
+
+                                                JSONObject item = users_array.getJSONObject(i);
+
+                                                User user = new User(item.getString("login"), item.getString("url"));
+                                                list.add(user);
+                                            }
+
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+
+                                        adapter.notifyDataSetChanged();
                                     }
                                 }, new Response.ErrorListener() {
 
