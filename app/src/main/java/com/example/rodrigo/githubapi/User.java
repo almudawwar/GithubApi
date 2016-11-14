@@ -4,6 +4,8 @@ public class User {
 
     private String login;
     private String url;
+    private String avatar;
+    private int followers;
 
     public User(String login, String url){
 

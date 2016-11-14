@@ -1,11 +1,13 @@
 package com.example.rodrigo.githubapi;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -48,10 +50,15 @@ public class MainActivity extends AppCompatActivity {
 
         requestQueue = Volley.newRequestQueue(this);
 
+
+    }
+
+
+    private void setListeners(){
         search_text.addTextChangedListener(new TextWatcher() {
 
             private Timer timer=new Timer();
-            private final long DELAY = 2000;
+            private final long DELAY = 1000;
 
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -82,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
                                     @Override
                                     public void onResponse(JSONObject response) {
 
-                                        System.out.println(response.toString());
+                                        list.clear();
 
                                         try {
                                             JSONArray users_array = response.getJSONArray("items");
@@ -92,6 +99,12 @@ public class MainActivity extends AppCompatActivity {
                                                 JSONObject item = users_array.getJSONObject(i);
 
                                                 User user = new User(item.getString("login"), item.getString("url"));
+                                                list.add(user);
+                                            }
+
+                                            if(users_array.length() == 0){
+
+                                                User user = new User("Nothing was found.", "");
                                                 list.add(user);
                                             }
 
@@ -117,6 +130,18 @@ public class MainActivity extends AppCompatActivity {
                 );
             }
         });
-    }
 
+
+        result_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+
+                //Send the URL of the selected user to the details activity
+                Intent intent = new Intent(MainActivity.this, UserDetailsActivity.class);
+                intent.putExtra("user_url", list.get(i).getUrl());
+
+                startActivity(intent);
+            }
+        });
+    }
 }
