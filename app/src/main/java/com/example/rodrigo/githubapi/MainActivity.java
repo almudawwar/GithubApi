@@ -48,9 +48,9 @@ public class MainActivity extends AppCompatActivity {
         adapter = new ListAdapter(this, list);
         result_list.setAdapter(adapter);
 
-        requestQueue = Volley.newRequestQueue(this);
+        requestQueue = MySingleton.getInstance(getApplicationContext()).getRequestQueue();
 
-
+        setListeners();
     }
 
 
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                             public void run() {
 
                                 String text = search_text.getText().toString();
-                                String url = Constants.USER_URL + text + Constants.SEARCH_LOGIN + Constants.ASC_ORDER;
+                                String url = Constants.USER_SEARCH  + text + Constants.SEARCH_LOGIN + Constants.ASC_ORDER;
 
 
                                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 });
 
-                                requestQueue.add(jsonObjectRequest);
+                                MySingleton.getInstance(MainActivity.this).addToRequestQueue(jsonObjectRequest);
                             }
                         },
                         DELAY
