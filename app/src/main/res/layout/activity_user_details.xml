@@ -17,16 +17,16 @@
         android:id="@+id/avatar"/>
 
     <TextView
-        android:text="TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/username"
         android:layout_centerHorizontal="true"
         android:layout_below="@id/avatar"
-        android:layout_marginTop="15dp"/>
+        android:layout_marginTop="15dp"
+        android:textStyle="bold"
+        android:textSize="20dp"/>
 
     <TextView
-        android:text="TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/stars"
@@ -35,7 +35,6 @@
         android:layout_marginTop="15dp"/>
 
     <TextView
-        android:text="TextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/followers"

@@ -8,16 +8,15 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -33,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
     EditText search_text;
     ListView result_list;
     ListAdapter adapter;
-    List<User> list = new ArrayList<>();
+    List<SearchItem> list = new ArrayList<>();
 
     RequestQueue requestQueue;
 
@@ -96,16 +95,25 @@ public class MainActivity extends AppCompatActivity {
 
                                             for(int i = 0; i < users_array.length(); i++){
 
-                                                JSONObject item = users_array.getJSONObject(i);
+                                                JSONObject object = users_array.getJSONObject(i);
 
-                                                User user = new User(item.getString("login"), item.getString("url"));
-                                                list.add(user);
+                                                SearchItem item = new SearchItem(object.getLong("id"));
+                                                item.setUrl(object.getString("url"));
+
+                                                if(object.getString("login") == null) {
+                                                    item.setType(1);
+                                                    item.setFull_name(object.getString("full_name"));
+                                                }else {
+                                                    item.setType(0);
+                                                    item.setLogin(object.getString("login"));
+                                                }
+
+                                                list.add(item);
                                             }
 
                                             if(users_array.length() == 0){
 
-                                                User user = new User("Nothing was found.", "");
-                                                list.add(user);
+                                                Toast.makeText(MainActivity.this, "Nothing was found.", Toast.LENGTH_SHORT).show();
                                             }
 
                                         } catch (JSONException e) {

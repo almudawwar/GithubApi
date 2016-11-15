@@ -15,11 +15,11 @@ import java.util.List;
 
 public class ListAdapter extends BaseAdapter {
 
-    private List<User> list_items;
+    private List<SearchItem> list_items;
     private LayoutInflater inflater;
     private Context context;
 
-    public ListAdapter(Context context, List<User> items){
+    public ListAdapter(Context context, List<SearchItem> items){
 
         this.context = context;
         list_items = items;
@@ -52,12 +52,18 @@ public class ListAdapter extends BaseAdapter {
         }
 
         TextView title = (TextView) view.findViewById(R.id.title);
-        TextView url = (TextView) view.findViewById(R.id.url);
+        TextView type = (TextView) view.findViewById(R.id.type);
 
-        User user = list_items.get(i);
+        SearchItem item = list_items.get(i);
 
-        title.setText(user.getLogin());
-        url.setText(user.getUrl());
+        if(item.getType() == 0) {
+            title.setText(item.getLogin());
+            type.setText("USER");
+        }else {
+            title.setText(item.getFull_name());
+            type.setText("REPOSITORY");
+        }
+
 
         return view;
     }

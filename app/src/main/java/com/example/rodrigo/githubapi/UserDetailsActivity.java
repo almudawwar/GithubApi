@@ -1,5 +1,6 @@
 package com.example.rodrigo.githubapi;
 
+import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -7,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -24,6 +26,7 @@ public class UserDetailsActivity extends AppCompatActivity {
     TextView username, stars, followers;
     Button back_button;
 
+    ProgressDialog dialog;
     User user;
 
     @Override
@@ -48,7 +51,7 @@ public class UserDetailsActivity extends AppCompatActivity {
                     user.setAvatar(response.getString("avatar_url"));
 
                     username.setText(user.getLogin());
-                    followers.setText(user.getFollowers() + "");
+                    followers.setText("Followers: " + user.getFollowers());
 
                     makeAvatarRequest();
 
@@ -71,6 +74,8 @@ public class UserDetailsActivity extends AppCompatActivity {
             public void onResponse(Bitmap response) {
 
                 avatar.setImageBitmap(response);
+
+                dialog.cancel();
             }
         }, 0, 0, null,
                 new Response.ErrorListener(){
@@ -78,6 +83,8 @@ public class UserDetailsActivity extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
 
+                        Toast.makeText(UserDetailsActivity.this, "Some problem occured.", Toast.LENGTH_SHORT).show();
+                        onBackPressed();
                     }
                 });
 
@@ -91,6 +98,8 @@ public class UserDetailsActivity extends AppCompatActivity {
         stars = (TextView) findViewById(R.id.stars);
         followers = (TextView) findViewById(R.id.followers);
         back_button = (Button) findViewById(R.id.back_button);
+
+        dialog = ProgressDialog.show(this, "Please wait", "Loading...", true, false);
     }
 
     private void setListeners(){
