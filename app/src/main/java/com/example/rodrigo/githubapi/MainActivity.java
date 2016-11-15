@@ -80,45 +80,17 @@ public class MainActivity extends AppCompatActivity {
                             public void run() {
 
                                 String text = search_text.getText().toString();
-                                String url = Constants.USER_SEARCH  + text + Constants.SEARCH_LOGIN + Constants.ASC_ORDER;
+                                String user_search_url = Constants.USER_SEARCH  + text + Constants.SEARCH_LOGIN + Constants.ASC_ORDER;
+                                String rep_search_url = Constants.REP_SEARCH + text +  Constants.ASC_ORDER;
 
-
-                                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+                                JsonObjectRequest users_request = new JsonObjectRequest(Request.Method.GET, user_search_url, null, new Response.Listener<JSONObject>() {
 
                                     @Override
                                     public void onResponse(JSONObject response) {
 
                                         list.clear();
 
-                                        try {
-                                            JSONArray users_array = response.getJSONArray("items");
-
-                                            for(int i = 0; i < users_array.length(); i++){
-
-                                                JSONObject object = users_array.getJSONObject(i);
-
-                                                SearchItem item = new SearchItem(object.getLong("id"));
-                                                item.setUrl(object.getString("url"));
-
-                                                if(object.getString("login") == null) {
-                                                    item.setType(1);
-                                                    item.setFull_name(object.getString("full_name"));
-                                                }else {
-                                                    item.setType(0);
-                                                    item.setLogin(object.getString("login"));
-                                                }
-
-                                                list.add(item);
-                                            }
-
-                                            if(users_array.length() == 0){
-
-                                                Toast.makeText(MainActivity.this, "Nothing was found.", Toast.LENGTH_SHORT).show();
-                                            }
-
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
+                                        fillList(response);
 
                                         adapter.notifyDataSetChanged();
                                     }
@@ -131,7 +103,27 @@ public class MainActivity extends AppCompatActivity {
                                     }
                                 });
 
-                                MySingleton.getInstance(MainActivity.this).addToRequestQueue(jsonObjectRequest);
+
+                                JsonObjectRequest rep_request = new JsonObjectRequest(Request.Method.GET, user_search_url, null, new Response.Listener<JSONObject>() {
+
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+
+                                        fillList(response);
+
+                                        adapter.notifyDataSetChanged();
+                                    }
+                                }, new Response.ErrorListener() {
+
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+
+                                        Log.d("Error", error.toString());
+                                    }
+                                });
+
+                                MySingleton.getInstance(MainActivity.this).addToRequestQueue(users_request);
+                                MySingleton.getInstance(MainActivity.this).addToRequestQueue(rep_request);
                             }
                         },
                         DELAY
@@ -151,5 +143,38 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    private void fillList(JSONObject response){
+
+        try {
+            JSONArray users_array = response.getJSONArray("items");
+
+            for(int i = 0; i < users_array.length(); i++){
+
+                JSONObject object = users_array.getJSONObject(i);
+
+                SearchItem item = new SearchItem(object.getLong("id"));
+                item.setUrl(object.getString("url"));
+
+                if(object.getString("login") == null) {
+                    item.setType(1);
+                    item.setFull_name(object.getString("full_name"));
+                }else {
+                    item.setType(0);
+                    item.setLogin(object.getString("login"));
+                }
+
+                list.add(item);
+            }
+
+            if(users_array.length() == 0){
+
+                Toast.makeText(MainActivity.this, "Nothing was found.", Toast.LENGTH_SHORT).show();
+            }
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

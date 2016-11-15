@@ -14,8 +14,10 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -54,6 +56,7 @@ public class UserDetailsActivity extends AppCompatActivity {
                     followers.setText("Followers: " + user.getFollowers());
 
                     makeAvatarRequest();
+                    makeStarsRequest();
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -65,6 +68,28 @@ public class UserDetailsActivity extends AppCompatActivity {
 
             }
         }));
+    }
+
+    private void makeStarsRequest(){
+
+        String url = Constants.USER + user.getLogin() + Constants.STARRED;
+
+        JsonArrayRequest arrayRequest = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
+            @Override
+            public void onResponse(JSONArray response) {
+
+                stars.setText("Stars: " + response.length());
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+                Toast.makeText(UserDetailsActivity.this, "Some problem occured.", Toast.LENGTH_SHORT).show();
+                onBackPressed();
+            }
+        });
+
+        MySingleton.getInstance(UserDetailsActivity.this).addToRequestQueue(arrayRequest);
     }
 
     private void makeAvatarRequest(){
