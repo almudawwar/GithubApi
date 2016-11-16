@@ -82,7 +82,9 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void run() {
 
-                                String text = search_text.getText().toString();
+                                //In case of the user writes whitespaces, it replaces them for "+", so and error doesn't occur
+                                String text = search_text.getText().toString().replace(" ", "+");
+
                                 String user_search_url = Constants.USER_SEARCH  + text + Constants.SEARCH_LOGIN + Constants.ASC_ORDER;
                                 String rep_search_url = Constants.REP_SEARCH + text +  Constants.ASC_ORDER;
 
