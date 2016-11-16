@@ -104,11 +104,12 @@ public class MainActivity extends AppCompatActivity {
                                 });
 
 
-                                JsonObjectRequest rep_request = new JsonObjectRequest(Request.Method.GET, user_search_url, null, new Response.Listener<JSONObject>() {
+                                JsonObjectRequest rep_request = new JsonObjectRequest(Request.Method.GET, rep_search_url, null, new Response.Listener<JSONObject>() {
 
                                     @Override
                                     public void onResponse(JSONObject response) {
 
+                                        System.out.println(response.toString());
                                         fillList(response);
 
                                         adapter.notifyDataSetChanged();
@@ -136,11 +137,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
 
-                //Send the URL of the selected user to the details activity
-                Intent intent = new Intent(MainActivity.this, UserDetailsActivity.class);
-                intent.putExtra("user_url", list.get(i).getUrl());
+                if(list.get(i).getType() == 0) {
+                    //Send the URL of the selected user to the details activity
+                    Intent intent = new Intent(MainActivity.this, UserDetailsActivity.class);
+                    intent.putExtra("user_url", list.get(i).getUrl());
 
-                startActivity(intent);
+                    startActivity(intent);
+                }else
+                    Toast.makeText(MainActivity.this, "Details only for users.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -157,12 +161,19 @@ public class MainActivity extends AppCompatActivity {
                 SearchItem item = new SearchItem(object.getLong("id"));
                 item.setUrl(object.getString("url"));
 
-                if(object.getString("login") == null) {
-                    item.setType(1);
-                    item.setFull_name(object.getString("full_name"));
-                }else {
-                    item.setType(0);
+                try {
+
                     item.setLogin(object.getString("login"));
+                    item.setType(0);
+
+                }catch(JSONException ex){
+
+                    if(object.getString("full_name") != null) {
+                        item.setType(1);
+                        item.setFull_name(object.getString("full_name"));
+                    }else
+                        ex.printStackTrace();
+
                 }
 
                 list.add(item);
