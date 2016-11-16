@@ -1,6 +1,8 @@
 package com.example.rodrigo.githubapi;
 
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
@@ -23,6 +25,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -112,12 +115,20 @@ public class MainActivity extends AppCompatActivity {
                                         System.out.println(response.toString());
                                         fillList(response);
 
+                                        Collections.sort(list, SearchItem.getComparator());
+
                                         adapter.notifyDataSetChanged();
                                     }
                                 }, new Response.ErrorListener() {
 
                                     @Override
                                     public void onErrorResponse(VolleyError error) {
+
+                                        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+
+                                        if(cm.getActiveNetworkInfo() == null){
+                                            Toast.makeText(MainActivity.this, "No Internet connection!", Toast.LENGTH_SHORT).show();
+                                        }
 
                                         Log.d("Error", error.toString());
                                     }
@@ -152,11 +163,11 @@ public class MainActivity extends AppCompatActivity {
     private void fillList(JSONObject response){
 
         try {
-            JSONArray users_array = response.getJSONArray("items");
+            JSONArray items_array = response.getJSONArray("items");
 
-            for(int i = 0; i < users_array.length(); i++){
+            for(int i = 0; i < items_array.length(); i++){
 
-                JSONObject object = users_array.getJSONObject(i);
+                JSONObject object = items_array.getJSONObject(i);
 
                 SearchItem item = new SearchItem(object.getLong("id"));
                 item.setUrl(object.getString("url"));
@@ -179,7 +190,7 @@ public class MainActivity extends AppCompatActivity {
                 list.add(item);
             }
 
-            if(users_array.length() == 0){
+            if(list.isEmpty()){
 
                 Toast.makeText(MainActivity.this, "Nothing was found.", Toast.LENGTH_SHORT).show();
             }

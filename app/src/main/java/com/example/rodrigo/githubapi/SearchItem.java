@@ -1,5 +1,7 @@
 package com.example.rodrigo.githubapi;
 
+import java.util.Comparator;
+
 /**
  * Created by Rodrigo on 15/11/2016.
  */
@@ -13,6 +15,27 @@ public class SearchItem {
 
     //This will tell if it's a user or repository  - 0 user  - 1 repository
     private int type;
+
+    public static Comparator<SearchItem> getComparator(){
+
+        Comparator comp = new Comparator<SearchItem>() {
+            @Override
+            public int compare(SearchItem item, SearchItem item2) {
+
+                long id1 = item.getId();
+                long id2 = item2.getId();
+
+                if(id1 < id2)
+                    return -1;
+                else if(id1 > id2)
+                    return 1;
+                else
+                    return 0;
+            }
+        };
+
+        return comp;
+    }
 
     public SearchItem(long id){
         this.id = id;
