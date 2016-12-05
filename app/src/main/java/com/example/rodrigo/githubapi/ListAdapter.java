@@ -7,60 +7,61 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.example.rodrigo.githubapi.Classes.Repository;
+import com.example.rodrigo.githubapi.Classes.SearchItem;
+import com.example.rodrigo.githubapi.Classes.User;
+
 import java.util.List;
 
-/**
- * Created by Rodrigo on 11/11/2016.
- */
 
 public class ListAdapter extends BaseAdapter {
 
-    private List<SearchItem> list_items;
-    private LayoutInflater inflater;
-    private Context context;
+    private List<SearchItem> mItemsList;
+    private LayoutInflater mInflater;
+    private Context mContext;
 
     public ListAdapter(Context context, List<SearchItem> items){
 
-        this.context = context;
-        list_items = items;
+        mContext = context;
+        mItemsList = items;
     }
 
     @Override
     public int getCount() {
-        return list_items.size();
+        return mItemsList.size();
     }
 
     @Override
     public Object getItem(int i) {
-        return list_items.get(i);
+        return mItemsList.get(i);
     }
 
     @Override
     public long getItemId(int i) {
-        return i;
+        return mItemsList.get(i).getId();
     }
 
     @Override
     public View getView(int i, View view, ViewGroup viewGroup) {
 
-        if(inflater == null){
-            inflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        if(mInflater == null){
+            mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         }
 
         if(view == null){
-            view = inflater.inflate(R.layout.list_item_layout, null);
+            view = mInflater.inflate(R.layout.list_item_layout, null);
         }
 
         TextView title = (TextView) view.findViewById(R.id.title);
         TextView type = (TextView) view.findViewById(R.id.type);
 
-        SearchItem item = list_items.get(i);
+        SearchItem item = mItemsList.get(i);
 
-        if(item.getType() == 0) {
-            title.setText(item.getLogin());
+        if(item instanceof User) {
+            title.setText(((User)item).getLogin());
             type.setText("USER");
         }else {
-            title.setText(item.getFull_name());
+            title.setText(((Repository)item).getFullName());
             type.setText("REPOSITORY");
         }
 

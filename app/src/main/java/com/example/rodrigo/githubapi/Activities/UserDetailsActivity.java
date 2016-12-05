@@ -1,4 +1,4 @@
-package com.example.rodrigo.githubapi;
+package com.example.rodrigo.githubapi.Activities;
 
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
@@ -16,6 +16,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.example.rodrigo.githubapi.Classes.MySingleton;
+import com.example.rodrigo.githubapi.Classes.User;
+import com.example.rodrigo.githubapi.Constants;
+import com.example.rodrigo.githubapi.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,37 +27,37 @@ import org.json.JSONObject;
 
 public class UserDetailsActivity extends AppCompatActivity {
 
-    String user_url;
-    ImageView avatar;
-    TextView username, stars, followers;
-    Button back_button;
+    String mUserUrl;
+    ImageView mAvatar;
+    TextView mUsername, mStars, mFollowers;
+    Button mBackButton;
 
-    ProgressDialog dialog;
-    User user;
+    ProgressDialog mDialog;
+    User mUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_user_details);
 
-        user_url = getIntent().getStringExtra("user_url");
+        mUserUrl = getIntent().getStringExtra("userUrl");
 
         setComponents();
 
         setListeners();
 
-        MySingleton.getInstance(this).addToRequestQueue(new JsonObjectRequest(Request.Method.GET, user_url, null, new Response.Listener<JSONObject>() {
+        MySingleton.getInstance(this).addToRequestQueue(new JsonObjectRequest(Request.Method.GET, mUserUrl, null, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
 
                 try {
-                    user = new User(response.getString("login"), response.getString("url"));
+                    mUser = new User(response.getLong("id"), response.getString("url"), response.getString("login"));
 
-                    user.setFollowers(response.getInt("followers"));
-                    user.setAvatar(response.getString("avatar_url"));
+                    mUser.setFollowers(response.getInt("followers"));
+                    mUser.setAvatar(response.getString("avatar_url"));
 
-                    username.setText(user.getLogin());
-                    followers.setText("Followers: " + user.getFollowers());
+                    mUsername.setText(mUser.getLogin());
+                    mFollowers.setText("Followers: " + mUser.getFollowers());
 
                     makeAvatarRequest();
                     makeStarsRequest();
@@ -72,13 +76,13 @@ public class UserDetailsActivity extends AppCompatActivity {
 
     private void makeStarsRequest(){
 
-        String url = Constants.USER + user.getLogin() + Constants.STARRED;
+        String url = Constants.USER + mUser.getLogin() + Constants.STARRED;
 
         JsonArrayRequest arrayRequest = new JsonArrayRequest(url, new Response.Listener<JSONArray>() {
             @Override
             public void onResponse(JSONArray response) {
 
-                stars.setText("Stars: " + response.length());
+                mStars.setText("Stars: " + response.length());
             }
         }, new Response.ErrorListener() {
             @Override
@@ -94,13 +98,13 @@ public class UserDetailsActivity extends AppCompatActivity {
 
     private void makeAvatarRequest(){
 
-        ImageRequest avatarRequest = new ImageRequest(user.getAvatar(), new Response.Listener<Bitmap>() {
+        ImageRequest avatarRequest = new ImageRequest(mUser.getAvatar(), new Response.Listener<Bitmap>() {
             @Override
             public void onResponse(Bitmap response) {
 
-                avatar.setImageBitmap(response);
+                mAvatar.setImageBitmap(response);
 
-                dialog.cancel();
+                mDialog.cancel();
             }
         }, 0, 0, null,
                 new Response.ErrorListener(){
@@ -118,18 +122,18 @@ public class UserDetailsActivity extends AppCompatActivity {
 
     private void setComponents(){
 
-        avatar = (ImageView) findViewById(R.id.avatar);
-        username = (TextView) findViewById(R.id.username);
-        stars = (TextView) findViewById(R.id.stars);
-        followers = (TextView) findViewById(R.id.followers);
-        back_button = (Button) findViewById(R.id.back_button);
+        mAvatar = (ImageView) findViewById(R.id.avatar);
+        mUsername = (TextView) findViewById(R.id.username);
+        mStars = (TextView) findViewById(R.id.stars);
+        mFollowers = (TextView) findViewById(R.id.followers);
+        mBackButton = (Button) findViewById(R.id.back_button);
 
-        dialog = ProgressDialog.show(this, "Please wait", "Loading...", true, false);
+        mDialog = ProgressDialog.show(this, "Please wait", "Loading...", true, false);
     }
 
     private void setListeners(){
 
-        back_button.setOnClickListener(new View.OnClickListener() {
+        mBackButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 onBackPressed();

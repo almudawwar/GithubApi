@@ -1,4 +1,4 @@
-package com.example.rodrigo.githubapi;
+package com.example.rodrigo.githubapi.Classes;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -9,19 +9,15 @@ import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
 
-/**
- * Created by Rodrigo on 14/11/2016.
- */
-
 public class MySingleton {
 
-    private static MySingleton mInstance;
+    private static MySingleton sInstance;
     private RequestQueue mRequestQueue;
     private ImageLoader mImageLoader;
-    private static Context mCtx;
+    private static Context sContext;
 
     private MySingleton(Context context) {
-        mCtx = context;
+        sContext = context;
         mRequestQueue = getRequestQueue();
 
         mImageLoader = new ImageLoader(mRequestQueue,
@@ -42,16 +38,16 @@ public class MySingleton {
     }
 
     public static synchronized MySingleton getInstance(Context context) {
-        if (mInstance == null) {
-            mInstance = new MySingleton(context);
+        if (sInstance == null) {
+            sInstance = new MySingleton(context);
         }
-        return mInstance;
+        return sInstance;
     }
 
     public RequestQueue getRequestQueue() {
         if (mRequestQueue == null) {
 
-            mRequestQueue = Volley.newRequestQueue(mCtx.getApplicationContext());
+            mRequestQueue = Volley.newRequestQueue(sContext.getApplicationContext());
         }
         return mRequestQueue;
     }
