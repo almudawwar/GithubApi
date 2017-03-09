@@ -5,13 +5,12 @@ import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -24,7 +23,7 @@ import com.example.rodrigo.githubapi.Classes.Repository;
 import com.example.rodrigo.githubapi.Classes.SearchItem;
 import com.example.rodrigo.githubapi.Classes.User;
 import com.example.rodrigo.githubapi.Constants;
-import com.example.rodrigo.githubapi.ListAdapter;
+import com.example.rodrigo.githubapi.MyRecycleAdapter;
 import com.example.rodrigo.githubapi.R;
 
 import org.json.JSONArray;
@@ -37,12 +36,14 @@ import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements MyRecycleAdapter.MyItemClickListener{
 
-    EditText mSearchText;
-    ListView mResultList;
-    ListAdapter mListAdapter;
-    List<SearchItem> mSearchItemList = new ArrayList<>();
+    private EditText mSearchText;
+
+    private RecyclerView mRecyclerView;
+    private MyRecycleAdapter mAdapter;
+
+    private List<SearchItem> mSearchItemList = new ArrayList<>();
 
     RequestQueue requestQueue;
 
@@ -52,10 +53,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         mSearchText = (EditText) findViewById(R.id.search_text);
-        mResultList = (ListView) findViewById(R.id.result_list);
+        mRecyclerView = (RecyclerView) findViewById(R.id.result_recycler_view);
 
-        mListAdapter = new ListAdapter(this, mSearchItemList);
-        mResultList.setAdapter(mListAdapter);
+        mAdapter = new MyRecycleAdapter(mSearchItemList, this);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+
+        mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setAdapter(mAdapter);
 
         requestQueue = MySingleton.getInstance(getApplicationContext()).getRequestQueue();
 
@@ -104,22 +108,6 @@ public class MainActivity extends AppCompatActivity {
                 );
             }
         });
-
-
-        mResultList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-
-                if(mSearchItemList.get(i) instanceof User) {
-                    //Send the URL of the selected mUser to the details activity
-                    Intent intent = new Intent(MainActivity.this, UserDetailsActivity.class);
-                    intent.putExtra("userUrl", mSearchItemList.get(i).getUrl());
-
-                    startActivity(intent);
-                }else
-                    Toast.makeText(MainActivity.this, "Details only for users.", Toast.LENGTH_SHORT).show();
-            }
-        });
     }
 
     private JsonObjectRequest makeUsersRequest(String userSearchUrl){
@@ -134,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
 
                         fillList(response);
 
-                        mListAdapter.notifyDataSetChanged();
+                        mAdapter.notifyDataSetChanged();
                     }
                 }, new Response.ErrorListener() {
 
@@ -160,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
 
                         Collections.sort(mSearchItemList, SearchItem.getComparator());
 
-                        mListAdapter.notifyDataSetChanged();
+                        mAdapter.notifyDataSetChanged();
                     }
                 }, new Response.ErrorListener() {
 
@@ -215,5 +203,18 @@ public class MainActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public void onItemClick(SearchItem item) {
+
+        if(item instanceof User) {
+            //Send the URL of the selected mUser to the details activity
+            Intent intent = new Intent(MainActivity.this, UserDetailsActivity.class);
+            intent.putExtra("userUrl", item.getUrl());
+
+            startActivity(intent);
+        }else
+            Toast.makeText(MainActivity.this, "Details only for users.", Toast.LENGTH_SHORT).show();
     }
 }
