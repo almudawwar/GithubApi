@@ -1,40 +1,31 @@
 package com.example.rodrigo.githubapi.Activities;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.example.rodrigo.githubapi.Classes.MySingleton;
-import com.example.rodrigo.githubapi.Classes.Repository;
+import com.example.rodrigo.githubapi.Classes.GitResponse;
 import com.example.rodrigo.githubapi.Classes.SearchItem;
 import com.example.rodrigo.githubapi.Classes.User;
 import com.example.rodrigo.githubapi.Constants;
 import com.example.rodrigo.githubapi.MyRecycleAdapter;
 import com.example.rodrigo.githubapi.R;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.example.rodrigo.githubapi.Remote.GithubService;
+import com.example.rodrigo.githubapi.Remote.RetrofitClient;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import retrofit2.Call;
+import retrofit2.Callback;
 
 public class MainActivity extends AppCompatActivity implements MyRecycleAdapter.MyItemClickListener{
 
@@ -44,8 +35,6 @@ public class MainActivity extends AppCompatActivity implements MyRecycleAdapter.
     private MyRecycleAdapter mAdapter;
 
     private List<SearchItem> mSearchItemList = new ArrayList<>();
-
-    RequestQueue requestQueue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,8 +49,6 @@ public class MainActivity extends AppCompatActivity implements MyRecycleAdapter.
 
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setAdapter(mAdapter);
-
-        requestQueue = MySingleton.getInstance(getApplicationContext()).getRequestQueue();
 
         setListeners();
     }
@@ -93,15 +80,37 @@ public class MainActivity extends AppCompatActivity implements MyRecycleAdapter.
                             @Override
                             public void run() {
 
-                                //In case of the mUser writes whitespaces, it replaces them for "+", so an error doesn't occur
+                                //In case of the user writes whitespaces, it replaces them for "+", so an error doesn't occur
                                 String text = mSearchText.getText().toString().replace(" ", "+");
 
                                 String userSearchUrl =
                                         Constants.USER_SEARCH  + text + Constants.SEARCH_LOGIN + Constants.ASC_ORDER;
                                 String repSearchUrl = Constants.REP_SEARCH + text +  Constants.ASC_ORDER;
 
-                                MySingleton.getInstance(MainActivity.this).addToRequestQueue(makeUsersRequest(userSearchUrl));
-                                MySingleton.getInstance(MainActivity.this).addToRequestQueue(makeRepositoriesRequest(repSearchUrl));
+//                                MySingleton.getInstance(MainActivity.this).addToRequestQueue(makeUsersRequest(userSearchUrl));
+//                                MySingleton.getInstance(MainActivity.this).addToRequestQueue(makeRepositoriesRequest(repSearchUrl));
+
+                                //Retrofit
+
+                                GithubService githubService = RetrofitClient.getClient(Constants.BASE_URL).create(GithubService.class);
+
+                                Call<GitResponse> users_call = githubService.getUsers(text);
+                                //Call<GitResponse> repository_call = githubService.getRepositories(text);
+
+                                users_call.enqueue(new Callback<GitResponse>() {
+                                    @Override
+                                    public void onResponse(Call<GitResponse> call, retrofit2.Response<GitResponse> response) {
+
+                                        fillList(response.body().items);
+
+                                    }
+
+                                    @Override
+                                    public void onFailure(Call<GitResponse> call, Throwable t) {
+
+                                        Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_LONG).show();
+                                    }
+                                });
                             }
                         },
                         DELAY
@@ -110,99 +119,16 @@ public class MainActivity extends AppCompatActivity implements MyRecycleAdapter.
         });
     }
 
-    private JsonObjectRequest makeUsersRequest(String userSearchUrl){
+    private void fillList(List<SearchItem> items){
 
-        JsonObjectRequest usersRequest =
-                new JsonObjectRequest(Request.Method.GET, userSearchUrl, null, new Response.Listener<JSONObject>() {
+        mSearchItemList.clear();
 
-                    @Override
-                    public void onResponse(JSONObject response) {
+        for(int i = 0; i < items.size(); i++){
 
-                        mSearchItemList.clear();
-
-                        fillList(response);
-
-                        mAdapter.notifyDataSetChanged();
-                    }
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                        Log.d("Error", error.toString());
-                    }
-                });
-
-        return usersRequest;
-    }
-
-    private JsonObjectRequest makeRepositoriesRequest(String repSearchUrl){
-
-        JsonObjectRequest repRequest =
-                new JsonObjectRequest(Request.Method.GET, repSearchUrl, null, new Response.Listener<JSONObject>() {
-
-                    @Override
-                    public void onResponse(JSONObject response) {
-
-                        fillList(response);
-
-                        Collections.sort(mSearchItemList, SearchItem.getComparator());
-
-                        mAdapter.notifyDataSetChanged();
-                    }
-                }, new Response.ErrorListener() {
-
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                        ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-                        if(cm.getActiveNetworkInfo() == null){
-                            Toast.makeText(MainActivity.this, "No Internet connection!", Toast.LENGTH_SHORT).show();
-                        }
-
-                        Log.d("Error", error.toString());
-                    }
-                });
-
-        return repRequest;
-    }
-
-    private void fillList(JSONObject response){
-
-        try {
-            JSONArray itemsArray = response.getJSONArray("items");
-
-            for(int i = 0; i < itemsArray.length(); i++){
-
-                JSONObject object = itemsArray.getJSONObject(i);
-
-                SearchItem item = null;
-
-                try {
-
-                    item = new User(object.getLong("id"), object.getString("url"), object.getString("login"));
-
-                }catch(JSONException ex){
-
-                    if(object.getString("full_name") != null) {
-                        item = new Repository(object.getLong("id"), object.getString("url"), object.getString("full_name"));
-                    }else
-                        ex.printStackTrace();
-
-                }
-
-                mSearchItemList.add(item);
-            }
-
-            if(mSearchItemList.isEmpty()){
-
-                Toast.makeText(MainActivity.this, "Nothing was found.", Toast.LENGTH_SHORT).show();
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
+            mSearchItemList.add(items.get(i));
         }
+
+        mAdapter.notifyDataSetChanged();
     }
 
     @Override

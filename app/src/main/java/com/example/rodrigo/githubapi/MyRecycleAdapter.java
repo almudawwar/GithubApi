@@ -7,21 +7,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.rodrigo.githubapi.Classes.Repository;
 import com.example.rodrigo.githubapi.Classes.SearchItem;
-import com.example.rodrigo.githubapi.Classes.User;
 
 import java.util.List;
 
 public class MyRecycleAdapter extends RecyclerView.Adapter<MyRecycleAdapter.MyViewHolder>{
 
-    private List<SearchItem> searchItemList;
-    private MyItemClickListener clickListener;
+    private List<SearchItem> mSearchItemList;
+    private MyItemClickListener mClickListener;
 
     public MyRecycleAdapter(List<SearchItem> list, MyItemClickListener listener){
 
-        searchItemList = list;
-        clickListener = listener;
+        mSearchItemList = list;
+        mClickListener = listener;
     }
 
     @Override
@@ -35,12 +33,12 @@ public class MyRecycleAdapter extends RecyclerView.Adapter<MyRecycleAdapter.MyVi
     @Override
     public void onBindViewHolder(MyViewHolder holder, int position) {
 
-        holder.bind(searchItemList.get(position));
+        holder.bind(mSearchItemList.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return searchItemList.size();
+        return mSearchItemList.size();
     }
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
@@ -56,20 +54,20 @@ public class MyRecycleAdapter extends RecyclerView.Adapter<MyRecycleAdapter.MyVi
 
         public void bind(final SearchItem item){
 
-            if(item instanceof User){
+            //if(item instanceof User){
 
-                title.setText(((User)item).getLogin());
+                title.setText(item.getUrl());
                 type.setText("USER");
-            }else{
-
-                title.setText(((Repository)item).getFullName());
-                type.setText("REPOSITORY");
-            }
+//            }else{
+//
+//                title.setText(((Repository)item).getFullName());
+//                type.setText("REPOSITORY");
+//            }
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    clickListener.onItemClick(item);
+                    mClickListener.onItemClick(item);
                 }
             });
         }

@@ -4,8 +4,8 @@ import java.util.Comparator;
 
 public class SearchItem {
 
-    private long mId;
-    private String mUrl;
+    private long id;
+    private String url;
 
     public static Comparator<SearchItem> getComparator(){
 
@@ -29,24 +29,20 @@ public class SearchItem {
     }
 
     public SearchItem(long id, String url){
-        mId = id;
-        mUrl = url;
+        this.id = id;
+        this.url = url;
     }
 
     public String getUrl() {
-        return mUrl;
-    }
-
-    public void setUrl(String mUrl) {
-        this.mUrl = mUrl;
+        return url;
     }
 
     public long getId() {
-        return mId;
+        return id;
     }
 
     public void setId(long id) {
-        this.mId = id;
+        this.id = id;
     }
 
 }
