@@ -43,13 +43,12 @@ public class MyRecycleAdapter extends RecyclerView.Adapter<MyRecycleAdapter.MyVi
 
     public class MyViewHolder extends RecyclerView.ViewHolder{
 
-        TextView title, type;
+        TextView title;
 
         public MyViewHolder(View itemView) {
             super(itemView);
 
             title = (TextView) itemView.findViewById(R.id.title);
-            type = (TextView) itemView.findViewById(R.id.type);
         }
 
         public void bind(final SearchItem item){
@@ -57,7 +56,6 @@ public class MyRecycleAdapter extends RecyclerView.Adapter<MyRecycleAdapter.MyVi
             //if(item instanceof User){
 
                 title.setText(item.getUrl());
-                type.setText("USER");
 //            }else{
 //
 //                title.setText(((Repository)item).getFullName());

@@ -3,4 +3,6 @@
 
     <string name="back">Back</string>
     <string name="search">Search on Github</string>
+    <string name="users">Users</string>
+    <string name="repositories">Repositories</string>
 </resources>

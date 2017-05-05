@@ -2,17 +2,19 @@ package com.example.rodrigo.githubapi.Activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.widget.EditText;
+import android.view.View;
+import android.widget.SearchView;
 import android.widget.Toast;
 
 import com.example.rodrigo.githubapi.Classes.GitResponse;
+import com.example.rodrigo.githubapi.Classes.RepositoryList;
 import com.example.rodrigo.githubapi.Classes.SearchItem;
 import com.example.rodrigo.githubapi.Classes.User;
+import com.example.rodrigo.githubapi.Classes.UserList;
 import com.example.rodrigo.githubapi.Constants;
 import com.example.rodrigo.githubapi.MyRecycleAdapter;
 import com.example.rodrigo.githubapi.R;
@@ -21,15 +23,15 @@ import com.example.rodrigo.githubapi.Remote.RetrofitClient;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity implements MyRecycleAdapter.MyItemClickListener{
 
-    private EditText mSearchText;
+    private SearchView mSearchView;
+    private TabLayout mTabLayout;
 
     private RecyclerView mRecyclerView;
     private MyRecycleAdapter mAdapter;
@@ -41,8 +43,10 @@ public class MainActivity extends AppCompatActivity implements MyRecycleAdapter.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mSearchText = (EditText) findViewById(R.id.search_text);
+        mSearchView = (SearchView) findViewById(R.id.search_view);
         mRecyclerView = (RecyclerView) findViewById(R.id.result_recycler_view);
+
+        mTabLayout = (TabLayout) findViewById(R.id.tabs);
 
         mAdapter = new MyRecycleAdapter(mSearchItemList, this);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
@@ -55,71 +59,80 @@ public class MainActivity extends AppCompatActivity implements MyRecycleAdapter.
 
 
     private void setListeners(){
-        mSearchText.addTextChangedListener(new TextWatcher() {
 
-            private Timer timer=new Timer();
-            private final long DELAY = 1000;
-
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            public boolean onQueryTextSubmit(String s) {
 
-            }
+                //In case of the user writes whitespaces, it replaces them for "+", so an error doesn't occur
+                String text = mSearchView.getQuery().toString().replace(" ", "+");
 
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                GithubService githubService = RetrofitClient.getClient(Constants.BASE_URL).create(GithubService.class);
 
-            }
+                switch (mTabLayout.getSelectedTabPosition()){
 
-            @Override
-            public void afterTextChanged(Editable editable) {
+                    case 0: {
+                        Call<UserList> userCall = githubService.getUsers(text);
 
-                timer.cancel();
-                timer = new Timer();
-                timer.schedule(
-                        new TimerTask() {
+                        userCall.enqueue(new Callback<UserList>() {
                             @Override
-                            public void run() {
+                            public void onResponse(Call<UserList> call, Response<UserList> response) {
 
-                                //In case of the user writes whitespaces, it replaces them for "+", so an error doesn't occur
-                                String text = mSearchText.getText().toString().replace(" ", "+");
-
-                                String userSearchUrl =
-                                        Constants.USER_SEARCH  + text + Constants.SEARCH_LOGIN + Constants.ASC_ORDER;
-                                String repSearchUrl = Constants.REP_SEARCH + text +  Constants.ASC_ORDER;
-
-//                                MySingleton.getInstance(MainActivity.this).addToRequestQueue(makeUsersRequest(userSearchUrl));
-//                                MySingleton.getInstance(MainActivity.this).addToRequestQueue(makeRepositoriesRequest(repSearchUrl));
-
-                                //Retrofit
-
-                                GithubService githubService = RetrofitClient.getClient(Constants.BASE_URL).create(GithubService.class);
-
-                                Call<GitResponse> users_call = githubService.getUsers(text);
-                                //Call<GitResponse> repository_call = githubService.getRepositories(text);
-
-                                users_call.enqueue(new Callback<GitResponse>() {
-                                    @Override
-                                    public void onResponse(Call<GitResponse> call, retrofit2.Response<GitResponse> response) {
-
-                                        fillList(response.body().items);
-
-                                    }
-
-                                    @Override
-                                    public void onFailure(Call<GitResponse> call, Throwable t) {
-
-                                        Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_LONG).show();
-                                    }
-                                });
+                                fillList(response.body().getItems());
                             }
-                        },
-                        DELAY
-                );
+
+                            @Override
+                            public void onFailure(Call<UserList> call, Throwable t) {
+
+                                Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        break;
+                    }
+
+                    case 1: {
+                        Call<RepositoryList> repositoryCall = githubService.getRepositories(text);
+
+                        repositoryCall.enqueue(new Callback<RepositoryList>() {
+                            @Override
+                            public void onResponse(Call<RepositoryList> call, Response<RepositoryList> response) {
+
+                                fillList(response.body().getItems());
+                            }
+
+                            @Override
+                            public void onFailure(Call<RepositoryList> call, Throwable t) {
+
+                                Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_LONG).show();
+                            }
+                        });
+                        break;
+                    }
+                }
+
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+
+                return false;
+            }
+        });
+
+        mSearchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(!mSearchView.isActivated()) {
+                    mSearchView.onActionViewExpanded();
+                }
+
             }
         });
     }
 
-    private void fillList(List<SearchItem> items){
+    private void fillList(List<? extends SearchItem> items){
 
         mSearchItemList.clear();
 

@@ -1,31 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?android:attr/selectableItemBackground">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <View
-        android:layout_width="match_parent"
-        android:layout_height="1px"
-        android:background="@color/colorAccent"/>
+        android:layout_width="344dp"
+        android:layout_height="0dp"
+        android:background="@color/colorAccent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/title"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="15dp"
-        android:textStyle="bold"/>
+        android:textStyle="bold"
+        android:text="TEXT"
+        android:layout_marginLeft="16dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="24dp" />
 
-    <TextView
+    <ImageView
+        android:id="@+id/imageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/type"
-        android:layout_below="@id/title"
-        android:layout_marginLeft="15dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginRight="15dp"
-        android:layout_alignParentRight="true"/>
+        app:srcCompat="@drawable/ic_user"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginRight="15dp" />
 
-</RelativeLayout>
+
+</android.support.constraint.ConstraintLayout>

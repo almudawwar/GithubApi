@@ -2,34 +2,34 @@ package com.example.rodrigo.githubapi.Classes;
 
 public class User extends SearchItem{
 
-    private String mLogin;
-    private String mAvatar;
-    private int mFollowers;
+    private String login;
+    private String avatar_url;
+    private String followers_url;
 
     public User(long id, String url, String login){
 
         super(id, url);
-        mLogin = login;
+        this.login = login;
     }
 
     public String getAvatar() {
-        return mAvatar;
+        return avatar_url;
     }
 
     public void setAvatar(String avatar) {
-        mAvatar = avatar;
+        this.avatar_url = avatar;
     }
 
-    public int getFollowers() {
-        return mFollowers;
+    public String getFollowers() {
+        return followers_url;
     }
 
-    public void setFollowers(int followers) {
-        mFollowers = followers;
+    public void setFollowers(String followers) {
+        this.followers_url = followers;
     }
 
     public String getLogin() {
-        return mLogin;
+        return login;
     }
 
 }
