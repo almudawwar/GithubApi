@@ -7,4 +7,12 @@
     <dimen name="logo_margin">15dp</dimen>
     <dimen name="search_margin">10dp</dimen>
     <dimen name="tabs_margin">8dp</dimen>
+
+    <!--list items-->
+    <dimen name="avatar_prev_dim">60dp</dimen>
+    <dimen name="avatar_prev_margin_right">25dp</dimen>
+    <dimen name="avatar_prev_vertical_margin">15dp</dimen>
+    <dimen name="text_margin_left">15dp</dimen>
+    <dimen name="text_margin_top">40dp</dimen>
+    <dimen name="line_margin">10dp</dimen>
 </resources>

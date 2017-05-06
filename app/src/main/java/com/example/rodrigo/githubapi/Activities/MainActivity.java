@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements MyRecycleAdapter.
 
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
 
-        mAdapter = new MyRecycleAdapter(mSearchItemList, this);
+        mAdapter = new MyRecycleAdapter(mSearchItemList, this, this);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
 
         mRecyclerView.setLayoutManager(layoutManager);

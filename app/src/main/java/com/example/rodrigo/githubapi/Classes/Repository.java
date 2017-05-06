@@ -3,19 +3,19 @@ package com.example.rodrigo.githubapi.Classes;
 
 public class Repository extends SearchItem{
 
-    private String mFullName;
+    private String full_name;
 
     public Repository(long id, String url, String fullName) {
         super(id, url);
 
-        mFullName = fullName;
+        full_name = fullName;
     }
 
     public String getFullName() {
-        return mFullName;
+        return full_name;
     }
 
     public void setFullName(String FullName) {
-        mFullName = FullName;
+        full_name = FullName;
     }
 }
